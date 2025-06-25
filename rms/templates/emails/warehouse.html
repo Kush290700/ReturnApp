@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    <p>Hello Manager,</p>
+    <p><strong>Return #{{ r.id }}</strong> has been approved by the warehouse on {{ fmt_pst(r.wh_approved_at) }} and is now awaiting your review.</p>
+    <p>
+      <a href="{{ view_url }}">Review and finalize this return</a>
+    </p>
+    <p>Thank you,<br>{{ company_name }} Warehouse Team</p>
+  </body>
+</html>

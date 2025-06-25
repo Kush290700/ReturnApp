@@ -1,0 +1,30 @@
+# Python artifacts
+__pycache__/
+*.py[cod]
+*.egg-info/
+*.env
+.env
+instance/
+*.db
+
+# Virtualenv
+.venv/
+env/
+
+# IDE files
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Docker
+*.log
+docker-compose.override.yml
+
+build/
+dist/
+.dockerignore
+Dockerfile
+static/uploads/

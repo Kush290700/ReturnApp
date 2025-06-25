@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    <p>Hello {{ rep_name }},</p>
+    <p>Your return request <strong>Return #{{ r.id }}</strong> has been <strong>fully approved</strong>.</p>
+    <p><strong>Total Credit Amount:</strong> ${{ "%.2f"|format(total_credit) }}</p>
+    <p>
+      Please find your Credit-PO attached to this email:<br>
+      <em>credit_po_{{ r.id }}.pdf</em>
+    </p>
+    <p>If you have any questions, simply reply to this email.</p>
+    <p>Thank you for choosing {{ company_name }}.</p>
+  </body>
+</html>

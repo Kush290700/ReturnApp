@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Return App – Streamlined return management">
+  <link rel="icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
+  <title>{% block title %}Return App{% endblock %}</title>
+
+  <!-- Bootstrap & Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+        rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css"
+        rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  {% block head %}{% endblock %}
+</head>
+<body>
+  <a class="visually-hidden-focusable" href="#mainContent">Skip to content</a>
+
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+    <div class="container">
+      <!-- Brand always goes to main.index -->
+      <a class="navbar-brand d-flex align-items-center"
+         href="{{ url_for('main.index') }}">
+        <img src="{{ url_for('static', filename='images/logo.png') }}"
+             alt="Logo" class="navbar-brand-logo me-2">
+        ReturnApp
+      </a>
+
+      {% if current_user.is_authenticated %}
+      <button class="navbar-toggler" data-bs-toggle="collapse"
+              data-bs-target="#mainNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="mainNav">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+
+          {% if current_user.role == 'sales' %}
+          <li class="nav-item">
+            <a class="nav-link{% if request.endpoint=='returns.new_return' %} active{% endif %}"
+               href="{{ url_for('returns.new_return') }}">
+              <i class="bi bi-plus-circle"></i> New Return
+            </a>
+          </li>
+          {% endif %}
+
+          {% if current_user.role in ['warehouse','manager','admin'] %}
+          <li class="nav-item position-relative">
+            <a class="nav-link{% if request.endpoint=='returns.approvals' %} active{% endif %}"
+               href="{{ url_for('returns.approvals') }}">
+              <i class="bi bi-check2-all"></i> Approvals
+            </a>
+            {% if pending %}
+            <span class="badge bg-danger position-absolute top-0 start-100 translate-middle">
+              {{ pending }}
+              <span class="visually-hidden">pending approvals</span>
+            </span>
+            {% endif %}
+          </li>
+          {% endif %}
+
+          <li class="nav-item">
+            <a class="nav-link{% if request.endpoint=='returns.list_returns' %} active{% endif %}"
+               href="{{ url_for('returns.list_returns') }}">
+              <i class="bi bi-card-list"></i> All Returns
+            </a>
+          </li>
+
+          <!-- Analytics now visible to every logged-in user -->
+          <li class="nav-item">
+            <a class="nav-link{% if request.endpoint.startswith('analytics.') %} active{% endif %}"
+               href="{{ url_for('analytics.dashboard') }}">
+              <i class="bi bi-bar-chart-line"></i> Analytics
+            </a>
+          </li>
+
+          {% if current_user.role == 'admin' %}
+          <li class="nav-item">
+            <a class="nav-link{% if request.endpoint.startswith('admin.') %} active{% endif %}"
+               href="{{ url_for('admin.manage_users') }}">
+              <i class="bi bi-gear"></i> Admin
+            </a>
+          </li>
+          {% endif %}
+        </ul>
+
+        <!-- Search form -->
+        <form class="d-flex me-3" action="{{ url_for('returns.list_returns') }}" method="get">
+          <input name="lookup" class="form-control form-control-sm me-2"
+                 type="search" placeholder="Search…" value="{{ request.args.lookup }}">
+          <button class="btn btn-sm btn-outline-light" type="submit">
+            <i class="bi bi-search"></i>
+          </button>
+        </form>
+
+        <!-- User menu -->
+        <ul class="navbar-nav mb-2 mb-lg-0">
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+              <i class="bi bi-person-circle"></i> {{ current_user.username }}
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li>
+                <a class="dropdown-item" href="{{ url_for('auth.logout') }}">
+                  <i class="bi bi-box-arrow-right"></i> Logout
+                </a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+      {% endif %}
+    </div>
+  </nav>
+
+  <main id="mainContent" class="container mt-5 pt-3 mb-5">
+    {% for cat, msg in get_flashed_messages(with_categories=true) %}
+    <div class="alert alert-{{cat}} alert-dismissible fade show" role="alert">
+      {{ msg }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endfor %}
+
+    {% block breadcrumbs %}{% endblock %}
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="bg-light text-center py-3">
+    <small>&copy; {{ now().year }} Two Rivers Meats • version {{ config.SITE_VERSION }}</small>
+  </footer>
+
+  <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script defer src="{{ url_for('static', filename='js/barcode.js') }}"></script>
+  <script defer>
+    document.addEventListener('DOMContentLoaded', ()=> {
+      document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el=>{
+        new bootstrap.Tooltip(el);
+      });
+    });
+  </script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

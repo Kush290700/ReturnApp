@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-5">
+    <h2 class="mt-4">Verify &amp; Set Password</h2>
+    <p>We sent an OTP to <strong>{{ email }}</strong>. Enter it below and choose a password.</p>
+    <form method="post">
+      <div class="mb-3">
+        <label>One-Time Code</label>
+        <input name="otp" class="form-control" required>
+      </div>
+      <div class="mb-3">
+        <label>Password</label>
+        <input name="password" type="password" class="form-control" required>
+      </div>
+      <div class="mb-3">
+        <label>Confirm Password</label>
+        <input name="password2" type="password" class="form-control" required>
+      </div>
+      <button class="btn btn-success">Complete Registration</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

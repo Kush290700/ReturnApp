@@ -1,0 +1,8 @@
+Hello {{ rep_name }},
+
+We’re sorry to inform you that your return request (Return #{{ r.id }}) has been rejected on {{ fmt_pst(r.approved_at) }}.
+
+If you have any questions or need further assistance, please reply to this email.
+
+Thank you,
+{{ company_name }} Team

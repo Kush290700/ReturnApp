@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    <p>Hello Warehouse Team,</p>
+    <p>A new return request has been submitted:</p>
+    <ul>
+      <li><strong>Return ID:</strong> {{ r.id }}</li>
+      <li><strong>Submitted by:</strong> {{ rep_name }}</li>
+      <li><strong>Date:</strong> {{ fmt_pst(r.date_submitted) }}</li>
+    </ul>
+    <p>
+      <a href="{{ view_url }}">Review and process this return</a>
+    </p>
+    <p>Thank you,<br>{{ company_name }} Operations</p>
+  </body>
+</html>

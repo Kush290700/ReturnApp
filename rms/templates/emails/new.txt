@@ -1,0 +1,10 @@
+Hello {{ rep_name }},
+
+Your return request (Return #{{ r.id }}) has been received by {{ company_name }} on {{ fmt_pst(r.date_submitted) }}.
+We are currently processing your submission and will notify you once it moves to the next stage.
+
+You can view the details of your return here:
+{{ view_url }}
+
+Thank you,
+{{ company_name }} Team

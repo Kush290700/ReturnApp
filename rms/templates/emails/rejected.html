@@ -1,0 +1,9 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    <p>Hello {{ rep_name }},</p>
+    <p>We’re sorry to inform you that your return request <strong>Return #{{ r.id }}</strong> has been <strong>rejected</strong> on {{ fmt_pst(r.approved_at) }}.</p>
+    <p>If you have any questions or need further assistance, please reply to this email.</p>
+    <p>Thank you,<br>{{ company_name }} Team</p>
+  </body>
+</html>

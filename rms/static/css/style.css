@@ -1,0 +1,92 @@
+/* ────────────────────────────────────────────────────────────────
+   0.  CASCADE GUARD
+   ----------------------------------------------------------------
+   Use :root variables so you can change the accent colour or the
+   app-wide max-width in ONE place.
+   ──────────────────────────────────────────────────────────────── */
+:root {
+    --tr-primary:      #0d6efd;     /* Same hue as Bootstrap “primary” */
+    --tr-success:      #198754;
+    --tr-danger:       #dc3545;
+    --tr-max-width:    1080px;      /* 960 → 1080 gives tables space  */
+}
+
+/* ────────────────────────────────────────────────────────────────
+   1.  GLOBAL LAYOUT TWEAKS
+   ──────────────────────────────────────────────────────────────── */
+body            { padding-top: 70px; }
+.container      { max-width: var(--tr-max-width); }
+.card           { border-radius: .5rem; }
+table           { font-size: .925rem; }
+th              { white-space: nowrap; }
+
+/* utility when a field has scanned / validated OK */
+.scan-ok        { border: 2px solid var(--tr-success) !important; }
+
+/* ────────────────────────────────────────────────────────────────
+   2.  NAV-BAR
+   ──────────────────────────────────────────────────────────────── */
+.navbar-brand          { font-weight: 600; }
+.navbar-brand-logo     {
+    height: 44px;          /* <=  tweak here if you want it smaller/larger */
+    width:  auto;
+    object-fit: contain;   /* keep aspect ratio & prevent distortion       */
+}
+
+.navbar .nav-link       { transition: opacity .2s; }
+.navbar .nav-link:hover { opacity: .75; }
+
+.badge                 { font-size: .70rem; }  /* smaller notification pills */
+
+/* active state for icons + text */
+.navbar .nav-link.active,
+.navbar .nav-link.active i { color: var(--tr-primary) !important; }
+
+/* ────────────────────────────────────────────────────────────────
+   3.  BUTTONS & FORMS
+   ──────────────────────────────────────────────────────────────── */
+.btn-primary           { background-color: var(--tr-primary); border-color: var(--tr-primary); }
+.btn-primary:hover     { filter: brightness(1.07); }
+
+.btn-success           { background-color: var(--tr-success); border-color: var(--tr-success); }
+.btn-danger            { background-color: var(--tr-danger);  border-color: var(--tr-danger);  }
+
+.form-control::placeholder { color:#aaa; opacity:.75; }
+
+/* make small form-controls less cramped */
+.form-control-sm,
+.form-select-sm        { padding-top: .25rem; padding-bottom: .25rem; }
+
+/* ────────────────────────────────────────────────────────────────
+   4.  TABLES
+   ──────────────────────────────────────────────────────────────── */
+.table-hover tbody tr:hover { background-color: rgba(0,0,0,.025); }
+
+/* numeric columns right-aligned */
+td.text-end,
+th.text-end,
+td:last-child,
+th:last-child          { text-align: right; }
+
+/* ────────────────────────────────────────────────────────────────
+   5.  CARDS / SHADOWS
+   ──────────────────────────────────────────────────────────────── */
+.card-shadow           { box-shadow: 0 .25rem .75rem rgba(0,0,0,.08); }
+
+/* ────────────────────────────────────────────────────────────────
+   6.  FOOTER
+   ──────────────────────────────────────────────────────────────── */
+footer                 { background: #f8f9fa; font-size: .875rem; }
+
+/* ────────────────────────────────────────────────────────────────
+   7.  DARK-MODE FRIENDLINESS (optional)
+   add “dark” class to <body> via JS if you want a quick night theme
+   ──────────────────────────────────────────────────────────────── */
+body.dark {
+    background: #121212;   color: #e3e3e3;
+}
+body.dark .card,
+body.dark .navbar,
+body.dark footer        { background: #1f1f1f; color:#e3e3e3; }
+body.dark .table-hover tbody tr:hover { background-color: rgba(255,255,255,.05); }
+body.dark a             { color: #91caff; }

@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    <p>Hello {{ rep_name }},</p>
+    <p>Your return request <strong>Return #{{ r.id }}</strong> has been received by <strong>{{ company_name }}</strong> on {{ fmt_pst(r.date_submitted) }}.</p>
+    <p>We are currently processing your submission and will notify you once it moves to the next stage.</p>
+    <p>
+      <a href="{{ view_url }}">View your return details</a>
+    </p>
+    <p>Thank you,<br>{{ company_name }} Team</p>
+  </body>
+</html>

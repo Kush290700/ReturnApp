@@ -1,0 +1,213 @@
+{% extends "base.html" %}
+{% block title %}Analytics – ReturnApp{% endblock %}
+
+{% block breadcrumbs %}
+<nav aria-label="breadcrumb" class="mt-3">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item">
+      <a href="{{ url_for('returns.list_returns') }}">All Returns</a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page">Analytics</li>
+  </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<!-- ─────────────────────────  SUMMARY CARDS  ─────────────────────────── -->
+<div class="row g-4 mb-4">
+  {% for label,value,suffix in [
+    ('Total Returns', total_returns, ''),
+    ('Total Items', total_items, ''),
+    ('Total Credit', total_credit|round(2), '$'),
+    ('Avg Items/Return', avg_items|round(2), ''),
+    ('Avg Credit/Return', avg_credit|round(2), '$')
+  ] %}
+    <div class="col-6 col-md">
+      <div class="card shadow-sm text-center h-100">
+        <div class="card-body py-3">
+          <h6 class="text-muted small mb-1">{{ label }}</h6>
+          <p class="h4 mb-0">{{ suffix }}{{ value }}</p>
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+
+  <!-- New: Two-step approval timing cards -->
+  <div class="col-6 col-md">
+    <div class="card shadow-sm text-center h-100">
+      <div class="card-body py-3">
+        <h6 class="text-muted small mb-1">Avg to WH Approval</h6>
+        <p class="h4 mb-0">
+          {% if avg_wh_days is not none %}
+            {{ avg_wh_days|round(1) }}d
+          {% else %}
+            —
+          {% endif %}
+        </p>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-md">
+    <div class="card shadow-sm text-center h-100">
+      <div class="card-body py-3">
+        <h6 class="text-muted small mb-1">Avg to Manager Approval</h6>
+        <p class="h4 mb-0">
+          {% if avg_mgr_days is not none %}
+            {{ avg_mgr_days|round(1) }}d
+          {% else %}
+            —
+          {% endif %}
+        </p>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-md">
+    <div class="card shadow-sm text-center h-100">
+      <div class="card-body py-3">
+        <h6 class="text-muted small mb-1">Avg Total Cycle</h6>
+        <p class="h4 mb-0">
+          {% if avg_cycle_days is not none %}
+            {{ avg_cycle_days|round(1) }}d
+          {% else %}
+            —
+          {% endif %}
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-md-auto d-flex align-items-stretch">
+    <a href="{{ url_for('analytics.download_csv') }}"
+       class="btn btn-primary w-100 d-flex align-items-center justify-content-center shadow-sm">
+      <i class="bi bi-download me-2"></i> Full CSV Export
+    </a>
+  </div>
+</div>
+
+<!-- ─────────────────────────  STATUS BREAKDOWN  ──────────────────────── -->
+<div class="row mb-4">
+  <div class="col-md-6 mb-4">
+    <div class="card shadow-sm h-100">
+      <div class="card-header"><h6 class="mb-0">Return Status (count)</h6></div>
+      <div class="card-body"><canvas id="statusCountChart"></canvas></div>
+    </div>
+  </div>
+  <div class="col-md-6 mb-4">
+    <div class="card shadow-sm h-100">
+      <div class="card-header"><h6 class="mb-0">Return Status (total credit)</h6></div>
+      <div class="card-body"><canvas id="statusCreditChart"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- ─────────────────────────  OTHER CHARTS  ──────────────────────────── -->
+<div class="row">
+  {% for title, cid in [
+      ('Returns by Type','byTypeChart'),
+      ('Avg Credit by Type','avgCreditByTypeChart'),
+      ('Returns by Rep','byRepChart'),
+      ('Returns by Customer','byCustomerChart'),
+      ('Top 10 Products Returned','topProductsChart'),
+      ('Returns Over Time','overTimeChart')
+  ] %}
+  <div class="col-md-6 mb-4">
+    <div class="card shadow-sm h-100">
+      <div class="card-header"><h6 class="mb-0">{{ title }}</h6></div>
+      <div class="card-body"><canvas id="{{ cid }}"></canvas></div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  /* ---------- DATA --------------------------------------------------- */
+  const statusLabels     = {{ status_counts.keys()      |list|tojson }};
+  const statusCounts     = {{ status_counts.values()    |list|tojson }};
+  const statusCreditVals = {{ status_credit.values()    |list|tojson }};
+
+  const typeLabels       = {{ by_type            |map(attribute=0)|list|tojson }};
+  const typeData         = {{ by_type            |map(attribute=1)|list|tojson }};
+  const avgTypeLabels    = {{ avg_credit_by_type |map(attribute=0)|list|tojson }};
+  const avgTypeData      = {{ avg_credit_by_type |map(attribute=1)|list|tojson }};
+  const repLabels        = {{ by_rep             |map(attribute=0)|list|tojson }};
+  const repData          = {{ by_rep             |map(attribute=1)|list|tojson }};
+  const custLabels       = {{ by_customer        |map(attribute=0)|list|tojson }};
+  const custData         = {{ by_customer        |map(attribute=1)|list|tojson }};
+  const topProdLabels    = {{ top_products       |map(attribute=0)|list|tojson }};
+  const topProdData      = {{ top_products       |map(attribute=1)|list|tojson }};
+  const timeLabels       = {{ over_time          |map(attribute=0)|list|tojson }};
+  const timeData         = {{ over_time          |map(attribute=1)|list|tojson }};
+
+  /* ---------- HELPERS ------------------------------------------------- */
+  function mkChart(id, cfg){ new Chart(document.getElementById(id), cfg); }
+
+  /* ---------- STATUS CHARTS ------------------------------------------ */
+  mkChart('statusCountChart', {
+    type:'doughnut',
+    data:{ labels:statusLabels, datasets:[{ data:statusCounts }] },
+    options:{ responsive:true }
+  });
+
+  mkChart('statusCreditChart', {
+    type:'bar',
+    data:{ labels:statusLabels,
+           datasets:[{ label:'Total Credit', data:statusCreditVals }] },
+    options:{
+      responsive:true,
+      scales:{ y:{ beginAtZero:true, title:{display:true,text:'$ Credit'} } }
+    }
+  });
+
+  /* ---------- OTHER CHARTS ------------------------------------------- */
+  mkChart('byTypeChart',{
+    type:'pie', data:{ labels:typeLabels, datasets:[{ data:typeData }] },
+    options:{responsive:true}
+  });
+
+  mkChart('avgCreditByTypeChart',{
+    type:'bar',
+    data:{ labels:avgTypeLabels,
+           datasets:[{ label:'Avg $ Credit', data:avgTypeData }] },
+    options:{responsive:true,scales:{y:{beginAtZero:true}}}
+  });
+
+  mkChart('byRepChart',{
+    type:'bar',
+    data:{ labels:repLabels, datasets:[{ label:'Returns', data:repData }] },
+    options:{responsive:true,scales:{y:{beginAtZero:true}}}
+  });
+
+  mkChart('byCustomerChart',{
+    type:'bar',
+    data:{ labels:custLabels,
+           datasets:[{ label:'Returns', data:custData }] },
+    options:{responsive:true,scales:{y:{beginAtZero:true}}}
+  });
+
+  mkChart('topProductsChart',{
+    type:'bar',
+    data:{ labels:topProdLabels,
+           datasets:[{ label:'Times Returned', data:topProdData }] },
+    options:{
+      indexAxis:'y',
+      responsive:true,
+      scales:{ x:{ beginAtZero:true } }
+    }
+  });
+
+  mkChart('overTimeChart',{
+    type:'line',
+    data:{ labels:timeLabels,
+           datasets:[{ label:'Returns per Day', data:timeData,
+                       fill:false, tension:0.3, pointRadius:3 }] },
+    options:{
+      responsive:true,
+      scales:{ y:{ beginAtZero:true },
+               x:{ title:{display:true,text:'Date'} } }
+    }
+  });
+</script>
+{% endblock %}

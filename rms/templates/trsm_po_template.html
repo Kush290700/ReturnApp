@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Return Form #{{ r.id }}</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    h1 { text-align: center; margin-bottom: 0.5em; }
+    table { width: 100%; border-collapse: collapse; margin-top: 1em; }
+    th, td { border: 1px solid #333; padding: 8px; text-align: left; }
+    th { background-color: #f0f0f0; }
+    .header-table td { border: none; padding: 4px; }
+    .footer-table td { border: none; padding: 4px; font-size: 0.9em; }
+    .footer-table { width: 100%; position: fixed; bottom: 20px; }
+  </style>
+</head>
+<body>
+
+  <h1>Two Rivers Meats — Return Form #{{ r.id }}</h1>
+
+  <table class="header-table">
+    <tr>
+      <td><strong>Rep:</strong> {{ r.rep_name }}</td>
+      <td><strong>Submitted:</strong> {{ r.date_submitted }}</td>
+    </tr>
+    <tr>
+      <td><strong>Order #:</strong> {{ r.order_number }}</td>
+      <td><strong>Shipped Date:</strong> {{ r.date_shipped }}</td>
+    </tr>
+    <tr>
+      <td colspan="2"><strong>Customer:</strong> {{ r.customer_name }}</td>
+    </tr>
+    <tr>
+      <td colspan="2"><strong>Return Type:</strong> {{ r.return_type }}</td>
+    </tr>
+    {% if r.advised_customer %}
+    <tr>
+      <td colspan="2"><strong>Advised Customer:</strong> {{ r.advised_customer }}</td>
+    </tr>
+    {% endif %}
+    {% if r.additional_notes %}
+    <tr>
+      <td colspan="2"><strong>Notes:</strong> {{ r.additional_notes }}</td>
+    </tr>
+    {% endif %}
+  </table>
+
+  <h2 style="margin-top: 1.5em;">Line Items</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Code</th>
+        <th>Description</th>
+        <th>Weight (lb)</th>
+        <th>Price ($/lb)</th>
+        <th>Credit ($)</th>
+        <th>Returning?</th>
+        <th>Reason</th>
+        <th>Follow Up</th>
+        <th>Supplier Credit</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for it in items %}
+      <tr>
+        <td>{{ it.product_code }}</td>
+        <td>{{ it.product_desc }}</td>
+        <td>{{ "%.3f"|format(it.weight_lb) }}</td>
+        <td>{{ "%.2f"|format(it.price_per_lb) }}</td>
+        <td>{{ "%.2f"|format(it.credit_amount) }}</td>
+        <td>{{ it.product_returning }}</td>
+        <td>{{ it.reason_for_return }}</td>
+        <td>{{ it.follow_up_action }}</td>
+        <td>{{ "Yes" if it.supplier_credit else "No" }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <table class="footer-table">
+    <tr>
+      <td><strong>Status:</strong> {{ r.status }}</td>
+      <td style="text-align: right;"><strong>Generated:</strong> {{ now() }}</td>
+    </tr>
+  </table>
+
+</body>
+</html>

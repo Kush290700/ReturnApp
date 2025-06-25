@@ -1,0 +1,14 @@
+Hello Warehouse Team,
+
+A new return request has been submitted:
+
+    Return ID:    {{ r.id }}
+    Submitted by: {{ rep_name }}
+    Date:         {{ fmt_pst(r.date_submitted) }}
+
+Please review and approve or reject at your earliest convenience:
+
+{{ view_url }}
+
+Thank you,
+{{ company_name }} Operations

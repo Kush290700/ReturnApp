@@ -1,0 +1,11 @@
+Hello Manager,
+
+Return #{{ r.id }} has been approved by the warehouse on {{ fmt_pst(r.wh_approved_at) }}  
+and is now awaiting your review.
+
+Please click below to finalize your approval:
+
+{{ view_url }}
+
+Thank you,
+{{ company_name }} Warehouse Team

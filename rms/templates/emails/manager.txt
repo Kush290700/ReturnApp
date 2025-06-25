@@ -1,0 +1,11 @@
+Hello {{ rep_name }},
+
+Your return request (Return #{{ r.id }}) has been fully approved.
+
+Total Credit Amount: ${{ "%.2f"|format(total_credit) }}
+
+Please find your Credit-PO attached to this email (filename: credit_po_{{ r.id }}.pdf).
+
+If you have any questions, reply to this email.
+
+Thank you for choosing {{ company_name }}.
