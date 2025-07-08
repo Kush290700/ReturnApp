@@ -108,18 +108,14 @@
                       {% endif %}
                       required>
                 {% for t in config.APPROVERS.keys() %}
-                  <option value="{{ t }}" {% if r.return_type==t %}selected{% endif %}>
-                    {{ t }}
-                  </option>
+                  <option value="{{ t }}" {% if r.return_type==t %}selected{% endif %}>{{ t }}</option>
                 {% endfor %}
               </select>
             </div>
 
             <div class="mb-3">
               <label class="form-label">Advised Customer</label>
-              <textarea name="advised_customer"
-                        class="form-control form-control-sm"
-                        rows="2"
+              <textarea name="advised_customer" class="form-control form-control-sm" rows="2"
                         {% if not ((current_user.role=='warehouse' and r.status=='Pending') or
                                    (current_user.role=='manager'   and r.status=='WH Approved')) %}
                           disabled
@@ -129,9 +125,7 @@
 
             <div class="mb-3">
               <label class="form-label">Additional Notes</label>
-              <textarea name="additional_notes"
-                        class="form-control form-control-sm"
-                        rows="3"
+              <textarea name="additional_notes" class="form-control form-control-sm" rows="3"
                         {% if not ((current_user.role=='warehouse' and r.status=='Pending') or
                                    (current_user.role=='manager'   and r.status=='WH Approved')) %}
                           disabled
@@ -148,6 +142,7 @@
                     <th class="text-end">Price/lb</th>
                     <th class="text-end">Weight</th>
                     <th class="text-end">Credit</th>
+                    <th>Follow‑up Action</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -159,9 +154,7 @@
                       </td>
                       <td>{{ it.product_desc }}</td>
                       <td class="text-end">
-                        <input type="number" step="0.01"
-                               name="price_per_lb"
-                               class="form-control form-control-sm text-end"
+                        <input type="number" step="0.01" name="price_per_lb" class="form-control form-control-sm text-end"
                                value="{{ it.price_per_lb }}"
                                {% if not ((current_user.role=='warehouse' and r.status=='Pending') or
                                           (current_user.role=='manager'   and r.status=='WH Approved')) %}
@@ -170,9 +163,7 @@
                                required>
                       </td>
                       <td class="text-end">
-                        <input type="number" step="0.001"
-                               name="weight_lb"
-                               class="form-control form-control-sm text-end"
+                        <input type="number" step="0.001" name="weight_lb" class="form-control form-control-sm text-end"
                                value="{{ it.weight_lb }}"
                                {% if not ((current_user.role=='warehouse' and r.status=='Pending') or
                                           (current_user.role=='manager'   and r.status=='WH Approved')) %}
@@ -181,6 +172,19 @@
                                required>
                       </td>
                       <td class="text-end">${{ "%.2f"|format(it.credit_amount) }}</td>
+                      <td>
+                        <select name="follow_up_action" class="form-select form-select-sm"
+                                {% if not ((current_user.role=='warehouse' and r.status=='Pending') or
+                                           (current_user.role=='manager'   and r.status=='WH Approved')) %}
+                                  disabled
+                                {% endif %}
+                                required>
+                          <option {% if it.follow_up_action=='Return to inventory' %}selected{% endif %}>Return to inventory</option>
+                          <option {% if it.follow_up_action=='Mark as spoilage' %}selected{% endif %}>Mark as spoilage</option>
+                          <option {% if it.follow_up_action=='Discount given' %}selected{% endif %}>Discount given</option>
+                          <option {% if it.follow_up_action=='Repurposed or ground' %}selected{% endif %}>Repurposed or ground</option>
+                        </select>
+                      </td>
                     </tr>
                   {% endfor %}
                 </tbody>
@@ -194,7 +198,7 @@
                 </button>
               {% elif current_user.role=='manager' and r.status=='WH Approved' %}
                 <button type="submit" class="btn btn-success me-2">
-                  <i class="bi bi-check-circle me-1"></i>Manager Approve & Credit-PO
+                  <i class="bi bi-check-circle me-1"></i>Manager Approve &amp; Credit-PO
                 </button>
               {% else %}
                 <button type="button" class="btn btn-secondary" disabled>No Action</button>
@@ -215,8 +219,6 @@
       </div>
     {% endfor %}
   {% else %}
-    <div class="alert alert-info text-center mb-0">
-      No returns are currently awaiting approval.
-    </div>
+    <div class="alert alert-info text-center mb-0">No returns are currently awaiting approval.</div>
   {% endif %}
 {% endblock %}

@@ -5,7 +5,10 @@ from flask import Flask
 from rms.models import User
 from rms.extensions import db
 from rms import create_app
+import dotenv
 
+
+dotenv.load_dotenv()   
 app = create_app()
 
 @app.cli.command("create-admin")

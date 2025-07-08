@@ -19,19 +19,16 @@
   <div class="card-body">
     <h4 class="card-title mb-4">Submit New Return</h4>
 
-    <form method="post" enctype="multipart/form-data">
+    <form method="post" enctype="multipart/form-data" id="returnForm">
       <!-- HEADER GRID -->
       <div class="row g-3 mb-4">
         <div class="col-md-3">
           <label class="form-label">Rep Name</label>
-          <input name="rep_name" class="form-control"
-                 value="{{ rep_name }}" readonly required>
+          <input name="rep_name" class="form-control" value="{{ rep_name }}" readonly required>
         </div>
         <div class="col-md-3">
           <label class="form-label">Date Submitted</label>
-          <input name="date_submitted" type="date"
-                 class="form-control"
-                 value="{{ today }}" required>
+          <input name="date_submitted" type="date" class="form-control" value="{{ today }}" required>
         </div>
         <div class="col-md-3">
           <label class="form-label">Order #</label>
@@ -52,9 +49,7 @@
         </div>
         <div class="col-md-3">
           <label class="form-label">Date Shipped</label>
-          <input name="date_shipped" type="date"
-                 class="form-control"
-                 value="{{ today }}" required>
+          <input name="date_shipped" type="date" class="form-control" value="{{ today }}" required>
         </div>
         <div class="col-md-6">
           <label class="form-label">If not returning, advised customer to</label>
@@ -64,77 +59,11 @@
 
       <hr>
 
-      <!-- LINE ITEM + DROPDOWNS -->
-      <h5 class="mb-3">Line Item</h5>
-      <div class="row g-3 align-items-end">
-        <!-- Product Code / Desc / Price / Weight / Credit -->
-        <div class="col-md-3">
-          <label class="form-label">Product Code</label>
-          <input id="barcodeInput" name="product_code"
-                 class="form-control" placeholder="Scan or type"
-                 autofocus required>
-        </div>
-        <div class="col-md-3">
-          <label class="form-label">Description</label>
-          <input name="product_desc" class="form-control" required>
-        </div>
-        <div class="col-md-2">
-          <label class="form-label">Price ($/lb)</label>
-          <input id="price" name="price_per_lb" type="number"
-                 step="0.01" class="form-control" required>
-        </div>
-        <div class="col-md-2">
-          <label class="form-label">Weight (lb)</label>
-          <input id="weight" name="weight_lb" type="number"
-                 step="0.001" class="form-control" required>
-        </div>
-        <div class="col-md-2">
-          <label class="form-label">Credit ($)</label>
-          <input id="credit" class="form-control" readonly>
-        </div>
-
-        <!-- New Dropdowns -->
-        <div class="col-md-3">
-          <label class="form-label">Product Returning?</label>
-          <select name="product_returning" class="form-select" required>
-            <option value="Yes TRSM driver">Yes TRSM driver</option>
-            <option value="Yes Freight">Yes Freight</option>
-            <option value="Yes Vendor Pickup">Yes Vendor Pickup</option>
-            <option value="No">No</option>
-          </select>
-        </div>
-        <div class="col-md-3">
-          <label class="form-label">Reason to Return</label>
-          <select name="reason_for_return" class="form-select" required>
-            <option>1.1 TRSM Blown Bag</option>
-            <option>1.2 Product Quality</option>
-            <option>1.3 Spoiled Product</option>
-            <option>1.4 Supplier Quality/Blown Bag</option>
-            <option>2.1 Overshipped</option>
-            <option>2.2 Wrong Product Shipped</option>
-            <option>2.3 Unacceptable Receiving Date</option>
-            <option>3.1 Order Entry Error</option>
-            <option>3.2 Sub Not Accepted</option>
-            <option>3.3 Customer Ordered Wrong Product</option>
-            <option>LostFreight</option>
-          </select>
-        </div>
-        <div class="col-md-3">
-          <label class="form-label">Follow Up Action</label>
-          <select name="follow_up_action" class="form-select" required>
-            <option>Return to inventory</option>
-            <option>Mark as spoilage</option>
-            <option>Discount given</option>
-            <option>Repurposed or ground</option>
-          </select>
-        </div>
-        <div class="col-md-3">
-          <label class="form-label">Supplier Credit?</label>
-          <select name="supplier_credit" class="form-select" required>
-            <option value="yes">Yes</option>
-            <option value="no">No</option>
-          </select>
-        </div>
+      <!-- LINE ITEMS -->
+      <h5 class="mb-3">Line Items</h5>
+      <div id="itemsContainer"></div>
+      <div class="text-end mb-3">
+        <button type="button" class="btn btn-outline-primary" onclick="addItem()">+ Add Item</button>
       </div>
 
       <hr>
@@ -143,8 +72,7 @@
       <div class="row g-3 mt-3">
         <div class="col-md-6">
           <label class="form-label">Attachments</label>
-          <input type="file" name="attachments"
-                 multiple class="form-control">
+          <input type="file" name="attachments" multiple class="form-control">
         </div>
         <div class="col-md-6 text-end">
           <button class="btn btn-success">Submit Return</button>
@@ -161,16 +89,109 @@
     </form>
   </div>
 </div>
+
+<!-- HIDDEN TEMPLATE FOR NEW ITEMS -->
+<template id="itemTemplate">
+  <div class="row g-3 align-items-end line-item border rounded p-2 mb-3">
+    <!-- Product Code / Desc / Price / Weight / Credit -->
+    <div class="col-md-3">
+      <label class="form-label">Product Code</label>
+      <input name="product_code[]" class="form-control" placeholder="Scan or type" required>
+    </div>
+    <div class="col-md-3">
+      <label class="form-label">Description</label>
+      <input name="product_desc[]" class="form-control" required>
+    </div>
+    <div class="col-md-2">
+      <label class="form-label">Price ($/lb)</label>
+      <input name="price_per_lb[]" type="number" step="0.01" class="form-control price" required>
+    </div>
+    <div class="col-md-2">
+      <label class="form-label">Weight (lb)</label>
+      <input name="weight_lb[]" type="number" step="0.001" class="form-control weight" required>
+    </div>
+    <div class="col-md-2">
+      <label class="form-label">Credit ($)</label>
+      <input class="form-control credit" readonly>
+    </div>
+
+    <!-- New Dropdowns -->
+    <div class="col-md-3">
+      <label class="form-label">Product Returning?</label>
+      <select name="product_returning[]" class="form-select" required>
+        <option value="Yes TRSM driver">Yes TRSM driver</option>
+        <option value="Yes Freight">Yes Freight</option>
+        <option value="Yes Vendor Pickup">Yes Vendor Pickup</option>
+        <option value="No">No</option>
+      </select>
+    </div>
+    <div class="col-md-3">
+      <label class="form-label">Reason to Return</label>
+      <select name="reason_for_return[]" class="form-select" required>
+        <option>1.1 TRSM Blown Bag</option>
+        <option>1.2 Product Quality</option>
+        <option>1.3 Spoiled Product</option>
+        <option>1.4 Supplier Quality/Blown Bag</option>
+        <option>2.1 Overshipped</option>
+        <option>2.2 Wrong Product Shipped</option>
+        <option>2.3 Unacceptable Receiving Date</option>
+        <option>3.1 Order Entry Error</option>
+        <option>3.2 Sub Not Accepted</option>
+        <option>3.3 Customer Ordered Wrong Product</option>
+        <option>LostFreight</option>
+      </select>
+    </div>
+    <div class="col-md-3">
+      <label class="form-label">Follow Up Action</label>
+      <select name="follow_up_action[]" class="form-select" required>
+        <option>Return to inventory</option>
+        <option>Mark as spoilage</option>
+        <option>Discount given</option>
+        <option>Repurposed or ground</option>
+      </select>
+    </div>
+    <div class="col-md-2">
+      <label class="form-label">Supplier Credit?</label>
+      <select name="supplier_credit[]" class="form-select" required>
+        <option value="yes">Yes</option>
+        <option value="no">No</option>
+      </select>
+    </div>
+
+    <div class="col-md-1 text-end">
+      <button type="button" class="btn btn-outline-danger btn-sm mt-4" onclick="removeItem(this)" title="Remove item">&times;</button>
+    </div>
+  </div>
+</template>
 {% endblock %}
 
 {% block scripts %}
 <script>
-  function updateCredit(){
-    const w = parseFloat(document.getElementById('weight').value)||0;
-    const p = parseFloat(document.getElementById('price').value)||0;
-    document.getElementById('credit').value=(w*p).toFixed(2);
+  // Helper to compute credit per item
+  function computeCredit(row){
+    const weight = parseFloat(row.querySelector('.weight').value) || 0;
+    const price  = parseFloat(row.querySelector('.price').value)  || 0;
+    row.querySelector('.credit').value = (weight*price).toFixed(2);
   }
-  document.getElementById('weight').addEventListener('input', updateCredit);
-  document.getElementById('price').addEventListener('input', updateCredit);
+
+  function addItem(){
+    const tpl = document.getElementById('itemTemplate');
+    const clone = tpl.content.cloneNode(true);
+
+    // Attach listeners for dynamic credit calc
+    clone.querySelectorAll('.weight, .price').forEach(el=>{
+      el.addEventListener('input', ()=> computeCredit(el.closest('.line-item')));
+    });
+
+    document.getElementById('itemsContainer').appendChild(clone);
+  }
+
+  function removeItem(btn){
+    const row = btn.closest('.line-item');
+    row.parentNode.removeChild(row);
+  }
+
+  // Add first item on page load
+  document.addEventListener('DOMContentLoaded', addItem);
 </script>
 {% endblock %}

@@ -1,3 +1,4 @@
+<!-- ======================== return_detail.html (updated) ======================== -->
 {# rms/templates/return_detail.html #}
 {% extends "base.html" %}
 {% block title %}Return #{{ r.id }} – Return Detail{% endblock %}
@@ -5,12 +6,8 @@
 {% block breadcrumbs %}
 <nav aria-label="breadcrumb" class="mt-3">
   <ol class="breadcrumb">
-    <li class="breadcrumb-item">
-      <a href="{{ url_for('returns.list_returns') }}">All Returns</a>
-    </li>
-    <li class="breadcrumb-item active" aria-current="page">
-      Return #{{ r.id }}
-    </li>
+    <li class="breadcrumb-item"><a href="{{ url_for('returns.list_returns') }}">All Returns</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Return #{{ r.id }}</li>
   </ol>
 </nav>
 {% endblock %}
@@ -20,9 +17,7 @@
   <div class="card-header d-flex justify-content-between align-items-center">
     <div>
       <h5 class="mb-0">Return #{{ r.id }}</h5>
-      <small class="text-muted">
-        {{ fmt_pst(r.date_submitted) }} by {{ r.rep_name or '–' }}
-      </small>
+      <small class="text-muted">{{ fmt_pst(r.date_submitted) }} by {{ r.rep_name or '–' }}</small>
     </div>
     {% if r.status == 'Pending' %}
       <span class="badge bg-warning text-dark">Pending</span>
@@ -38,145 +33,66 @@
   </div>
 
   <div class="card-body">
-    {%- set can_edit = (current_user.role=='warehouse' and r.status=='Pending')
-                     or (current_user.role=='manager'   and r.status=='WH Approved') %}
-    <form method="post"
-          action="{% if current_user.role=='warehouse' and r.status=='Pending' -%}
-                    {{ url_for('returns.approve_wh',  id=r.id) }}
-                  {%- elif current_user.role=='manager' and r.status=='WH Approved' -%}
-                    {{ url_for('returns.approve_mgr', id=r.id) }}
-                  {%- else -%}#{% endif %}"
-          class="needs-validation"
-          novalidate>
+    {%- set can_edit = (current_user.role=='warehouse' and r.status=='Pending') or (current_user.role=='manager' and r.status=='WH Approved') %}
+    <form method="post" action="{% if current_user.role=='warehouse' and r.status=='Pending' -%}{{ url_for('returns.approve_wh',  id=r.id) }}{%- elif current_user.role=='manager' and r.status=='WH Approved' -%}{{ url_for('returns.approve_mgr', id=r.id) }}{%- else -%}#{% endif %}" class="needs-validation" novalidate>
 
+      <!-- HEADER FIELDS -->
       <div class="row g-3 mb-4">
-        <div class="col-md-3">
-          <label class="form-label">Rep Name</label>
-          <input type="text" class="form-control form-control-sm"
-                 value="{{ r.rep_name }}" readonly>
-        </div>
-        <div class="col-md-3">
-          <label class="form-label">Date Submitted</label>
-          <input name="date_submitted" type="date"
-                 class="form-control form-control-sm"
-                 value="{{ r.date_submitted.strftime('%Y-%m-%d') }}"
-                 {% if not can_edit %}disabled{% endif %}
-                 required>
-        </div>
-        <div class="col-md-3">
-          <label class="form-label">Date Shipped</label>
-          <input name="date_shipped" type="date"
-                 class="form-control form-control-sm"
-                 value="{{ r.date_shipped and r.date_shipped.strftime('%Y-%m-%d') or '' }}"
-                 {% if not can_edit %}disabled{% endif %}
-                 required>
-        </div>
-        <div class="col-md-3">
-          <label class="form-label">Order #</label>
-          <input name="order_number" type="text"
-                 class="form-control form-control-sm"
-                 value="{{ r.order_number }}"
-                 {% if not can_edit %}disabled{% endif %}
-                 required>
-        </div>
+        <div class="col-md-3"><label class="form-label">Rep Name</label><input type="text" class="form-control form-control-sm" value="{{ r.rep_name }}" readonly></div>
+        <div class="col-md-3"><label class="form-label">Date Submitted</label><input name="date_submitted" type="date" class="form-control form-control-sm" value="{{ r.date_submitted.strftime('%Y-%m-%d') }}" {% if not can_edit %}disabled{% endif %} required></div>
+        <div class="col-md-3"><label class="form-label">Date Shipped</label><input name="date_shipped" type="date" class="form-control form-control-sm" value="{{ r.date_shipped and r.date_shipped.strftime('%Y-%m-%d') or '' }}" {% if not can_edit %}disabled{% endif %} required></div>
+        <div class="col-md-3"><label class="form-label">Order #</label><input name="order_number" type="text" class="form-control form-control-sm" value="{{ r.order_number }}" {% if not can_edit %}disabled{% endif %} required></div>
       </div>
 
       <div class="row g-3 mb-4">
-        <div class="col-md-4">
-          <label class="form-label">Customer Name</label>
-          <input name="customer_name" type="text"
-                 class="form-control form-control-sm"
-                 value="{{ r.customer_name }}"
-                 {% if not can_edit %}disabled{% endif %}
-                 required>
-        </div>
-        <div class="col-md-4">
-          <label class="form-label">Return Type</label>
-          <select name="return_type" class="form-select form-select-sm"
-                  {% if not can_edit %}disabled{% endif %}
-                  required>
-            {% for t in config.APPROVERS.keys() %}
-              <option value="{{ t }}" {% if r.return_type==t %}selected{% endif %}>
-                {{ t }}
-              </option>
-            {% endfor %}
-          </select>
-        </div>
-        <div class="col-md-4">
-          <label class="form-label">Advise Customer</label>
-          <input name="advised_customer" type="text"
-                 class="form-control form-control-sm"
-                 value="{{ r.advised_customer }}"
-                 {% if not can_edit %}disabled{% endif %}
-                 required>
-        </div>
+        <div class="col-md-4"><label class="form-label">Customer Name</label><input name="customer_name" type="text" class="form-control form-control-sm" value="{{ r.customer_name }}" {% if not can_edit %}disabled{% endif %} required></div>
+        <div class="col-md-4"><label class="form-label">Return Type</label><select name="return_type" class="form-select form-select-sm" {% if not can_edit %}disabled{% endif %} required>{% for t in config.APPROVERS.keys() %}<option value="{{ t }}" {% if r.return_type==t %}selected{% endif %}>{{ t }}</option>{% endfor %}</select></div>
+        <div class="col-md-4"><label class="form-label">Advise Customer</label><input name="advised_customer" type="text" class="form-control form-control-sm" value="{{ r.advised_customer }}" {% if not can_edit %}disabled{% endif %} required></div>
       </div>
 
-      <div class="mb-4">
-        <label class="form-label">Additional Notes</label>
-        <textarea name="additional_notes"
-                  class="form-control form-control-sm"
-                  rows="3"
-                  {% if not can_edit %}disabled{% endif %}>{{ r.additional_notes }}</textarea>
-      </div>
+      <div class="mb-4"><label class="form-label">Additional Notes</label><textarea name="additional_notes" class="form-control form-control-sm" rows="3" {% if not can_edit %}disabled{% endif %}>{{ r.additional_notes }}</textarea></div>
 
+      <!-- LINE ITEMS -->
       <h6 class="mb-3">Line Items</h6>
       <div class="table-responsive mb-4">
         <table class="table table-sm align-middle">
           <thead class="table-light">
             <tr>
-              <th>Code</th>
-              <th>Description</th>
-              <th class="text-end">Price/lb</th>
-              <th class="text-end">Weight</th>
-              <th class="text-end">Credit</th>
+              <th>Code</th><th>Description</th><th class="text-end">Price/lb</th><th class="text-end">Weight</th><th class="text-end">Credit</th><th>Returning?</th><th>Reason</th><th>Follow‑up</th><th class="text-center">Supplier Credit</th>
             </tr>
           </thead>
           <tbody>
             {% for it in r.items %}
               <tr>
-                <td>
-                  {{ it.product_code }}
-                  <input type="hidden" name="item_id" value="{{ it.id }}">
-                </td>
+                <td>{{ it.product_code }}<input type="hidden" name="item_id" value="{{ it.id }}"></td>
                 <td>{{ it.product_desc }}</td>
-                <td class="text-end">
-                  <input name="price_per_lb" type="number" step="0.01"
-                         class="form-control form-control-sm text-end"
-                         value="{{ it.price_per_lb }}"
-                         {% if not can_edit %}disabled{% endif %}
-                         required>
-                </td>
-                <td class="text-end">
-                  <input name="weight_lb" type="number" step="0.001"
-                         class="form-control form-control-sm text-end"
-                         value="{{ it.weight_lb }}"
-                         {% if not can_edit %}disabled{% endif %}
-                         required>
-                </td>
+                <td class="text-end"><input name="price_per_lb" type="number" step="0.01" class="form-control form-control-sm text-end" value="{{ it.price_per_lb }}" {% if not can_edit %}disabled{% endif %} required></td>
+                <td class="text-end"><input name="weight_lb" type="number" step="0.001" class="form-control form-control-sm text-end" value="{{ it.weight_lb }}" {% if not can_edit %}disabled{% endif %} required></td>
                 <td class="text-end">${{ "%.2f"|format(it.credit_amount) }}</td>
+                <td>{{ it.product_returning }}</td>
+                <td>{{ it.reason_for_return }}</td>
+                <td>
+                  <select name="follow_up_action" class="form-select form-select-sm" {% if not can_edit %}disabled{% endif %} required>
+                    <option {% if it.follow_up_action=='Return to inventory' %}selected{% endif %}>Return to inventory</option>
+                    <option {% if it.follow_up_action=='Mark as spoilage' %}selected{% endif %}>Mark as spoilage</option>
+                    <option {% if it.follow_up_action=='Discount given' %}selected{% endif %}>Discount given</option>
+                    <option {% if it.follow_up_action=='Repurposed or ground' %}selected{% endif %}>Repurposed or ground</option>
+                  </select>
+                </td>
+                <td class="text-center">{{ it.supplier_credit|capitalize }}</td>
               </tr>
             {% endfor %}
           </tbody>
         </table>
       </div>
 
+      <!-- APPROVE / REJECT BUTTONS -->
       <div class="d-flex justify-content-between">
         {% if can_edit %}
-          <button type="submit" class="btn btn-success">
-            <i class="bi bi-check-circle me-1"></i>
-            {% if current_user.role=='warehouse' %}Warehouse Approve{% else %}Manager Approve{% endif %}
-          </button>
-        {% else %}
-          <span></span>
-        {% endif %}
+          <button type="submit" class="btn btn-success"><i class="bi bi-check-circle me-1"></i>{% if current_user.role=='warehouse' %}Warehouse Approve{% else %}Manager Approve{% endif %}</button>
+        {% else %}<span></span>{% endif %}
         {% if current_user.role in ['warehouse','manager','admin'] %}
-          <form method="post"
-                action="{{ url_for('returns.reject', id=r.id) }}">
-            <button class="btn btn-outline-danger">
-              <i class="bi bi-x-circle me-1"></i>Reject
-            </button>
-          </form>
+          <form method="post" action="{{ url_for('returns.reject', id=r.id) }}"><button class="btn btn-outline-danger"><i class="bi bi-x-circle me-1"></i>Reject</button></form>
         {% endif %}
       </div>
     </form>

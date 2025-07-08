@@ -4,11 +4,11 @@ import time
 from io import BytesIO
 import psycopg2
 from psycopg2 import sql, OperationalError
-
+import dotenv
 from sqlalchemy.engine import make_url
 
 # ── 1) grab & parse DATABASE_URL via SQLAlchemy ─────────────────────────────
-raw_url = os.getenv("DATABASE_URL")
+raw_url = "postgresql+psycopg2://postgres:Kush%40trsm@127.0.0.1:5432/rms_db"
 if not raw_url:
     raise RuntimeError("DATABASE_URL must be set")
 
@@ -71,7 +71,7 @@ elif   os.path.exists(ini_mig):    alembic_ini = ini_mig
 else:
     raise FileNotFoundError(f"Could not find alembic.ini in {ini_root} or {ini_mig}")
 
-from run                  import create_app
+from .run                  import create_app
 from rms.models           import db, User
 from werkzeug.security    import generate_password_hash
 from alembic.config       import Config
