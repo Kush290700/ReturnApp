@@ -56,9 +56,9 @@ jobs:
     - name: Copy to Windows server via WinRM
       uses: jborean93/psrp-action@v2               # simple PowerShell-Remoting action
       with:
-        hostname: ${{ secrets.WIN_HOST }}
-        username: ${{ secrets.WIN_USER }}
-        password: ${{ secrets.WIN_PASS }}
+        hostname: ${{ 10.4.21.4 }}
+        username: ${{ TWORIVERS\Kush }}
+        password: ${{ Baw05622 }}
         script: |
           param($Artifact)
           $dest = 'C:\deploy\ReturnApp.zip'
